@@ -1,0 +1,2206 @@
+
+window.onload = function() {
+  // Build a system
+  let url = window.location.search.match(/url=([^&]+)/);
+  if (url && url.length > 1) {
+    url = decodeURIComponent(url[1]);
+  } else {
+    url = window.location.origin;
+  }
+  let options = {
+  "swaggerDoc": {
+    "openapi": "3.0.0",
+    "paths": {
+      "/": {
+        "get": {
+          "operationId": "AppController_getHello",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "App"
+          ]
+        }
+      },
+      "/auth/register": {
+        "post": {
+          "operationId": "AuthController_register",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "User registered successfully"
+            }
+          },
+          "summary": "Register a new user",
+          "tags": [
+            "Auth"
+          ]
+        }
+      },
+      "/auth/login": {
+        "post": {
+          "operationId": "AuthController_login",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "User logged in successfully"
+            }
+          },
+          "summary": "Login a user",
+          "tags": [
+            "Auth"
+          ]
+        }
+      },
+      "/auth/logout": {
+        "post": {
+          "operationId": "AuthController_logout",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "User logged out successfully"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Logout the current user",
+          "tags": [
+            "Auth"
+          ]
+        }
+      },
+      "/auth/me": {
+        "get": {
+          "operationId": "AuthController_getMe",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "Current user profile returned"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Get current authenticated user details",
+          "tags": [
+            "Auth"
+          ]
+        }
+      },
+      "/auth/forgot-password": {
+        "post": {
+          "operationId": "AuthController_forgotPassword",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForgotPasswordDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Password reset code sent if account exists"
+            }
+          },
+          "summary": "Request password reset code",
+          "tags": [
+            "Auth"
+          ]
+        }
+      },
+      "/auth/verify-email": {
+        "post": {
+          "operationId": "AuthController_verifyEmail",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Email verified successfully"
+            }
+          },
+          "summary": "Verify email using token sent to the user",
+          "tags": [
+            "Auth"
+          ]
+        }
+      },
+      "/auth/reset-password": {
+        "post": {
+          "operationId": "AuthController_resetPassword",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetPasswordDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Password reset successful"
+            }
+          },
+          "summary": "Reset user password using reset token",
+          "tags": [
+            "Auth"
+          ]
+        }
+      },
+      "/auth/request-reactivation": {
+        "post": {
+          "operationId": "AuthController_requestReactivation",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestReactivationDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Reactivation request processed"
+            },
+            "400": {
+              "description": "Invalid reactivation request"
+            }
+          },
+          "summary": "Request user reactivation",
+          "tags": [
+            "Auth"
+          ]
+        }
+      },
+      "/users": {
+        "get": {
+          "operationId": "UsersController_findAll",
+          "parameters": [
+            {
+              "name": "includeInactive",
+              "required": false,
+              "in": "query",
+              "description": "Include inactive users in the response",
+              "schema": {
+                "type": "boolean"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Users retrieved successfully"
+            }
+          },
+          "security": [
+            {
+              "JWT-auth": []
+            }
+          ],
+          "summary": "List users",
+          "tags": [
+            "Users"
+          ]
+        }
+      },
+      "/users/leaderboard": {
+        "get": {
+          "operationId": "UsersController_getLeaderboard",
+          "parameters": [
+            {
+              "name": "limit",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "example": 20,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Leaderboard retrieved successfully"
+            }
+          },
+          "security": [
+            {
+              "JWT-auth": []
+            }
+          ],
+          "summary": "Get the user leaderboard",
+          "tags": [
+            "Users"
+          ]
+        }
+      },
+      "/users/reactivation-requests": {
+        "get": {
+          "operationId": "UsersController_listReactivationRequests",
+          "parameters": [
+            {
+              "name": "status",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "enum": [
+                  "PENDING",
+                  "RESOLVED",
+                  "REJECTED"
+                ],
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Reactivation requests retrieved successfully"
+            },
+            "403": {
+              "description": "Admin access required"
+            }
+          },
+          "security": [
+            {
+              "JWT-auth": []
+            }
+          ],
+          "summary": "List user reactivation requests",
+          "tags": [
+            "Users"
+          ]
+        }
+      },
+      "/users/{id}": {
+        "get": {
+          "operationId": "UsersController_findOne",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "User retrieved successfully"
+            },
+            "404": {
+              "description": "User not found"
+            }
+          },
+          "security": [
+            {
+              "JWT-auth": []
+            }
+          ],
+          "summary": "Get a user by ID",
+          "tags": [
+            "Users"
+          ]
+        },
+        "patch": {
+          "operationId": "UsersController_update",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateUserDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "User updated successfully"
+            },
+            "403": {
+              "description": "Insufficient permissions"
+            }
+          },
+          "security": [
+            {
+              "JWT-auth": []
+            }
+          ],
+          "summary": "Update a user profile",
+          "tags": [
+            "Users"
+          ]
+        }
+      },
+      "/users/{id}/role": {
+        "patch": {
+          "operationId": "UsersController_updateRole",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateRoleDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "User role updated successfully"
+            },
+            "403": {
+              "description": "Insufficient permissions"
+            }
+          },
+          "security": [
+            {
+              "JWT-auth": []
+            }
+          ],
+          "summary": "Update a user role",
+          "tags": [
+            "Users"
+          ]
+        }
+      },
+      "/users/{id}/deactivate": {
+        "patch": {
+          "operationId": "UsersController_deactivate",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "User deactivated successfully"
+            }
+          },
+          "security": [
+            {
+              "JWT-auth": []
+            }
+          ],
+          "summary": "Deactivate a user",
+          "tags": [
+            "Users"
+          ]
+        }
+      },
+      "/users/{id}/activate": {
+        "patch": {
+          "operationId": "UsersController_activate",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "User activated successfully"
+            },
+            "403": {
+              "description": "Admin access required"
+            }
+          },
+          "security": [
+            {
+              "JWT-auth": []
+            }
+          ],
+          "summary": "Activate a user",
+          "tags": [
+            "Users"
+          ]
+        }
+      },
+      "/quests": {
+        "post": {
+          "description": "Creates a new quest in OPEN status. Only ADMIN users can create quests.",
+          "operationId": "QuestsController_create",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateQuestDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Quest created successfully"
+            },
+            "400": {
+              "description": "Invalid input data or validation failure"
+            },
+            "401": {
+              "description": "Unauthorized - Missing or invalid JWT token"
+            },
+            "403": {
+              "description": "Forbidden - Requires ADMIN role"
+            },
+            "404": {
+              "description": "Team not found if teamId was provided"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Create a new quest",
+          "tags": [
+            "Quests"
+          ]
+        },
+        "get": {
+          "description": "Retrieves all quests matching optional query filters (status, type, assignedTo, teamId). Accessible by all authenticated users.",
+          "operationId": "QuestsController_findAll",
+          "parameters": [
+            {
+              "name": "status",
+              "required": false,
+              "in": "query",
+              "description": "Filter quests by status",
+              "schema": {
+                "example": "OPEN",
+                "type": "string",
+                "enum": [
+                  "OPEN",
+                  "IN_PROGRESS",
+                  "DECLINE_REQUESTED",
+                  "COMPLETED",
+                  "CANCELLED"
+                ]
+              }
+            },
+            {
+              "name": "type",
+              "required": false,
+              "in": "query",
+              "description": "Filter quests by type",
+              "schema": {
+                "example": "FEATURE",
+                "type": "string",
+                "enum": [
+                  "FEATURE",
+                  "BUG",
+                  "LEARNING",
+                  "CODE_REVIEW",
+                  "TESTING",
+                  "REFACTOR",
+                  "DOCUMENTATION",
+                  "RESEARCH"
+                ]
+              }
+            },
+            {
+              "name": "assignedTo",
+              "required": false,
+              "in": "query",
+              "description": "Filter quests by assigned user ID",
+              "schema": {
+                "minimum": 1,
+                "example": 2,
+                "type": "number"
+              }
+            },
+            {
+              "name": "teamId",
+              "required": false,
+              "in": "query",
+              "description": "Filter quests by team ID",
+              "schema": {
+                "minimum": 1,
+                "example": 1,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "List of quests retrieved successfully"
+            },
+            "400": {
+              "description": "Invalid query parameter format"
+            },
+            "401": {
+              "description": "Unauthorized - Missing or invalid JWT token"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Get all quests with optional filters",
+          "tags": [
+            "Quests"
+          ]
+        }
+      },
+      "/quests/decline-requests": {
+        "get": {
+          "description": "Retrieves all quests currently in DECLINE_REQUESTED status. Only ADMIN users can view decline requests.",
+          "operationId": "QuestsController_getDeclineRequests",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "List of pending quest decline requests retrieved successfully"
+            },
+            "401": {
+              "description": "Unauthorized - Missing or invalid JWT token"
+            },
+            "403": {
+              "description": "Forbidden - Requires ADMIN role"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Get all pending quest decline requests",
+          "tags": [
+            "Quests"
+          ]
+        }
+      },
+      "/quests/my": {
+        "get": {
+          "description": "Retrieves all quests where assignedToId matches the authenticated user ID.",
+          "operationId": "QuestsController_findMy",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "User assigned quests retrieved successfully"
+            },
+            "401": {
+              "description": "Unauthorized - Missing or invalid JWT token"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Get quests assigned to the current user",
+          "tags": [
+            "Quests"
+          ]
+        }
+      },
+      "/quests/overdue": {
+        "get": {
+          "description": "Retrieves all active quests (status OPEN or IN_PROGRESS) whose dueDate is before the current timestamp.",
+          "operationId": "QuestsController_findOverdue",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "List of overdue quests retrieved successfully"
+            },
+            "401": {
+              "description": "Unauthorized - Missing or invalid JWT token"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Get overdue quests",
+          "tags": [
+            "Quests"
+          ]
+        }
+      },
+      "/quests/{id}": {
+        "get": {
+          "description": "Retrieves full details of a specific quest by its integer ID. Accessible by any authenticated user.",
+          "operationId": "QuestsController_findOne",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "Quest ID",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Quest retrieved successfully"
+            },
+            "400": {
+              "description": "Invalid quest ID"
+            },
+            "401": {
+              "description": "Unauthorized - Missing or invalid JWT token"
+            },
+            "404": {
+              "description": "Quest with the specified ID not found"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Get a quest by ID",
+          "tags": [
+            "Quests"
+          ]
+        },
+        "patch": {
+          "description": "Updates quest fields or transitions quest status according to allowed transition rules. Only ADMIN users can update quests.",
+          "operationId": "QuestsController_update",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "Quest ID",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateQuestDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Quest updated successfully"
+            },
+            "400": {
+              "description": "Invalid update payload or forbidden status transition"
+            },
+            "401": {
+              "description": "Unauthorized - Missing or invalid JWT token"
+            },
+            "403": {
+              "description": "Forbidden - Requires ADMIN role"
+            },
+            "404": {
+              "description": "Quest with the specified ID not found"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Update a quest",
+          "tags": [
+            "Quests"
+          ]
+        },
+        "delete": {
+          "description": "Deletes a quest record permanently. Only ADMIN users can delete quests.",
+          "operationId": "QuestsController_remove",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "Quest ID",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Quest deleted successfully"
+            },
+            "400": {
+              "description": "Invalid quest ID"
+            },
+            "401": {
+              "description": "Unauthorized - Missing or invalid JWT token"
+            },
+            "403": {
+              "description": "Forbidden - Requires ADMIN role"
+            },
+            "404": {
+              "description": "Quest with the specified ID not found"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Delete a quest",
+          "tags": [
+            "Quests"
+          ]
+        }
+      },
+      "/quests/{id}/assign": {
+        "post": {
+          "description": "Assigns the quest to a team (teamId) or a member belonging to that team (userId). Cannot provide both simultaneously. Only ADMIN users can assign.",
+          "operationId": "QuestsController_assign",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "Quest ID",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignQuestDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Quest assigned successfully"
+            },
+            "400": {
+              "description": "Invalid assignment parameters, quest already COMPLETED/CANCELLED, or user does not belong to the quest team"
+            },
+            "401": {
+              "description": "Unauthorized - Missing or invalid JWT token"
+            },
+            "403": {
+              "description": "Forbidden - Requires ADMIN role"
+            },
+            "404": {
+              "description": "Quest, Team, or User not found"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Assign a quest to a team or user",
+          "tags": [
+            "Quests"
+          ]
+        }
+      },
+      "/quests/{id}/unassign": {
+        "patch": {
+          "description": "Resets assignedToId and teamId to null and sets quest status back to OPEN. COMPLETED and CANCELLED quests cannot be unassigned. Only ADMIN users can unassign.",
+          "operationId": "QuestsController_unassign",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "Quest ID",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Quest unassigned successfully and reset to OPEN status"
+            },
+            "400": {
+              "description": "COMPLETED or CANCELLED quests cannot be unassigned"
+            },
+            "401": {
+              "description": "Unauthorized - Missing or invalid JWT token"
+            },
+            "403": {
+              "description": "Forbidden - Requires ADMIN role"
+            },
+            "404": {
+              "description": "Quest with the specified ID not found"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Unassign a quest",
+          "tags": [
+            "Quests"
+          ]
+        }
+      },
+      "/quests/{id}/claim": {
+        "patch": {
+          "description": "Allows an active member of the quest team to self-claim an unassigned quest in OPEN status.",
+          "operationId": "QuestsController_claim",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "Quest ID",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Quest claimed successfully"
+            },
+            "400": {
+              "description": "Quest is not assigned to a team, is already assigned, or is not in OPEN status"
+            },
+            "401": {
+              "description": "Unauthorized - Missing or invalid JWT token"
+            },
+            "403": {
+              "description": "Forbidden - Caller is not an active member of the quest team"
+            },
+            "404": {
+              "description": "Quest with the specified ID not found"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Claim an unassigned team quest",
+          "tags": [
+            "Quests"
+          ]
+        }
+      },
+      "/quests/{id}/start": {
+        "patch": {
+          "description": "Transitions quest status from OPEN to IN_PROGRESS. Caller must be the assigned user or a member of the quest team.",
+          "operationId": "QuestsController_start",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "Quest ID",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Quest started successfully (status changed to IN_PROGRESS)"
+            },
+            "400": {
+              "description": "Quest cannot be started because current status is not OPEN"
+            },
+            "401": {
+              "description": "Unauthorized - Missing or invalid JWT token"
+            },
+            "403": {
+              "description": "Forbidden - You are not authorized to start this quest"
+            },
+            "404": {
+              "description": "Quest with the specified ID not found"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Start a quest",
+          "tags": [
+            "Quests"
+          ]
+        }
+      },
+      "/quests/{id}/complete": {
+        "patch": {
+          "description": "Transitions quest status from IN_PROGRESS to COMPLETED and atomically credits quest points to the assigned user. Only the assigned user can complete the quest.",
+          "operationId": "QuestsController_complete",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "Quest ID",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Quest completed successfully and points awarded"
+            },
+            "400": {
+              "description": "Quest cannot be completed because current status is not IN_PROGRESS"
+            },
+            "401": {
+              "description": "Unauthorized - Missing or invalid JWT token"
+            },
+            "403": {
+              "description": "Forbidden - Only the assigned user can complete this quest"
+            },
+            "404": {
+              "description": "Quest with the specified ID not found"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Complete a quest",
+          "tags": [
+            "Quests"
+          ]
+        }
+      },
+      "/quests/{id}/decline": {
+        "patch": {
+          "description": "Submits a request to decline an active IN_PROGRESS quest with an explanation reason. Only the assigned user can decline.",
+          "operationId": "QuestsController_requestDecline",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "Quest ID",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeclineQuestDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Quest decline request submitted successfully (status changed to DECLINE_REQUESTED)"
+            },
+            "400": {
+              "description": "Quest cannot be declined because status is not IN_PROGRESS or invalid payload"
+            },
+            "401": {
+              "description": "Unauthorized - Missing or invalid JWT token"
+            },
+            "403": {
+              "description": "Forbidden - Only the assigned user can decline this quest"
+            },
+            "404": {
+              "description": "Quest with the specified ID not found"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Request to decline a quest",
+          "tags": [
+            "Quests"
+          ]
+        }
+      },
+      "/quests/{id}/decline/accept": {
+        "patch": {
+          "description": "Approves a pending decline request, unassigns the user, and resets quest status back to OPEN. Only ADMIN users can accept declines.",
+          "operationId": "QuestsController_acceptDecline",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "Quest ID",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Quest decline request accepted (quest reset to OPEN status)"
+            },
+            "400": {
+              "description": "This quest does not have a pending decline request"
+            },
+            "401": {
+              "description": "Unauthorized - Missing or invalid JWT token"
+            },
+            "403": {
+              "description": "Forbidden - Requires ADMIN role"
+            },
+            "404": {
+              "description": "Quest with the specified ID not found"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Accept a quest decline request",
+          "tags": [
+            "Quests"
+          ]
+        }
+      },
+      "/quests/{id}/decline/reject": {
+        "patch": {
+          "description": "Rejects a pending decline request, provides admin reason feedback, and returns quest status back to IN_PROGRESS. Only ADMIN users can reject declines.",
+          "operationId": "QuestsController_rejectDecline",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "Quest ID",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeclineQuestDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Quest decline request rejected (quest returned to IN_PROGRESS status with admin reason feedback)"
+            },
+            "400": {
+              "description": "This quest does not have a pending decline request or missing reason payload"
+            },
+            "401": {
+              "description": "Unauthorized - Missing or invalid JWT token"
+            },
+            "403": {
+              "description": "Forbidden - Requires ADMIN role"
+            },
+            "404": {
+              "description": "Quest with the specified ID not found"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Reject a quest decline request",
+          "tags": [
+            "Quests"
+          ]
+        }
+      },
+      "/teams": {
+        "post": {
+          "operationId": "TeamsController_createTeam",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateTeamDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Team created successfully"
+            },
+            "400": {
+              "description": "Invalid team data"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Create a new team",
+          "tags": [
+            "Teams"
+          ]
+        },
+        "get": {
+          "operationId": "TeamsController_findAll",
+          "parameters": [
+            {
+              "name": "status",
+              "required": false,
+              "in": "query",
+              "description": "Filter teams by status",
+              "schema": {
+                "example": "ACTIVE",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Teams retrieved successfully"
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Get teams",
+          "tags": [
+            "Teams"
+          ]
+        }
+      },
+      "/teams/{id}": {
+        "get": {
+          "operationId": "TeamsController_findOne",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "Team ID",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Team details retrieved successfully"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "404": {
+              "description": "Team not found"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Get a team by ID",
+          "tags": [
+            "Teams"
+          ]
+        },
+        "patch": {
+          "operationId": "TeamsController_update",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "Team ID",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateTeamDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Team updated successfully"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Team not found"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Update a team",
+          "tags": [
+            "Teams"
+          ]
+        },
+        "delete": {
+          "operationId": "TeamsController_removeTeam",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "Team ID",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Team removed successfully"
+            },
+            "400": {
+              "description": "Invalid team ID"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Team not found"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Remove a team",
+          "tags": [
+            "Teams"
+          ]
+        }
+      },
+      "/teams/{teamId}/members": {
+        "post": {
+          "operationId": "TeamMembersController_addMember",
+          "parameters": [
+            {
+              "name": "teamId",
+              "required": true,
+              "in": "path",
+              "description": "Team ID",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddMemberDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Member added successfully"
+            },
+            "400": {
+              "description": "Invalid team ID or member data"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Team or user not found"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Add a member to a team",
+          "tags": [
+            "Team Members"
+          ]
+        },
+        "get": {
+          "operationId": "TeamMembersController_getMembers",
+          "parameters": [
+            {
+              "name": "teamId",
+              "required": true,
+              "in": "path",
+              "description": "Team ID",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            },
+            {
+              "name": "includeInactive",
+              "required": false,
+              "in": "query",
+              "description": "Include inactive team members",
+              "schema": {
+                "example": "false",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Team members retrieved successfully"
+            },
+            "400": {
+              "description": "Invalid team ID"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Team not found"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Get team members",
+          "tags": [
+            "Team Members"
+          ]
+        }
+      },
+      "/teams/{teamId}/members/{userId}": {
+        "get": {
+          "operationId": "TeamMembersController_getMember",
+          "parameters": [
+            {
+              "name": "teamId",
+              "required": true,
+              "in": "path",
+              "description": "Team ID",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            },
+            {
+              "name": "userId",
+              "required": true,
+              "in": "path",
+              "description": "User ID",
+              "schema": {
+                "example": 2,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Team member retrieved successfully"
+            },
+            "400": {
+              "description": "Invalid team ID or user ID"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Team member not found"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Get a team member by user ID",
+          "tags": [
+            "Team Members"
+          ]
+        },
+        "patch": {
+          "operationId": "TeamMembersController_updateMemberRole",
+          "parameters": [
+            {
+              "name": "teamId",
+              "required": true,
+              "in": "path",
+              "description": "Team ID",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            },
+            {
+              "name": "userId",
+              "required": true,
+              "in": "path",
+              "description": "User ID",
+              "schema": {
+                "example": 2,
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateMemberRoleDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Team member role updated successfully"
+            },
+            "400": {
+              "description": "Invalid team member data"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Team member not found"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Update a team member role or status",
+          "tags": [
+            "Team Members"
+          ]
+        },
+        "delete": {
+          "operationId": "TeamMembersController_removeMember",
+          "parameters": [
+            {
+              "name": "teamId",
+              "required": true,
+              "in": "path",
+              "description": "Team ID",
+              "schema": {
+                "example": 1,
+                "type": "number"
+              }
+            },
+            {
+              "name": "userId",
+              "required": true,
+              "in": "path",
+              "description": "User ID",
+              "schema": {
+                "example": 2,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Team member removed successfully"
+            },
+            "400": {
+              "description": "Invalid team ID or user ID"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Team member not found"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Remove a member from a team",
+          "tags": [
+            "Team Members"
+          ]
+        }
+      },
+      "/comments/{questId}": {
+        "post": {
+          "operationId": "CommentsController_create",
+          "parameters": [
+            {
+              "name": "questId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateCommentDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "Comments"
+          ]
+        },
+        "get": {
+          "operationId": "CommentsController_findByQuest",
+          "parameters": [
+            {
+              "name": "questId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "Comments"
+          ]
+        }
+      },
+      "/comments/{id}": {
+        "patch": {
+          "operationId": "CommentsController_update",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateCommentDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "Comments"
+          ]
+        },
+        "delete": {
+          "operationId": "CommentsController_remove",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "Comments"
+          ]
+        }
+      },
+      "/leaderboard": {
+        "get": {
+          "operationId": "LeaderboardController_getGlobal",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "Leaderboard"
+          ]
+        }
+      },
+      "/teams/{teamId}/leaderboard": {
+        "get": {
+          "operationId": "LeaderboardController_getTeam",
+          "parameters": [
+            {
+              "name": "teamId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "Leaderboard"
+          ]
+        }
+      },
+      "/audit-logs": {
+        "get": {
+          "operationId": "AuditController_findAll",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "Audit logs retrieved successfully"
+            },
+            "401": {
+              "description": "Unauthorized - Missing or invalid JWT token"
+            },
+            "403": {
+              "description": "Forbidden - Requires ADMIN role"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Get all audit logs with optional filters (Admin only)",
+          "tags": [
+            "Audit Logs"
+          ]
+        }
+      }
+    },
+    "info": {
+      "title": "QuestBoard API",
+      "description": "QuestBoard backend API documentation",
+      "version": "1.0",
+      "contact": {}
+    },
+    "tags": [],
+    "servers": [],
+    "components": {
+      "securitySchemes": {
+        "JWT-auth": {
+          "scheme": "bearer",
+          "bearerFormat": "JWT",
+          "type": "http",
+          "name": "JWT",
+          "description": "Enter JWT token",
+          "in": "header"
+        },
+        "bearer": {
+          "scheme": "bearer",
+          "bearerFormat": "JWT",
+          "type": "http"
+        }
+      },
+      "schemas": {
+        "RegisterDto": {
+          "type": "object",
+          "properties": {}
+        },
+        "LoginDto": {
+          "type": "object",
+          "properties": {}
+        },
+        "ForgotPasswordDto": {
+          "type": "object",
+          "properties": {}
+        },
+        "VerifyEmailDto": {
+          "type": "object",
+          "properties": {}
+        },
+        "ResetPasswordDto": {
+          "type": "object",
+          "properties": {}
+        },
+        "RequestReactivationDto": {
+          "type": "object",
+          "properties": {}
+        },
+        "UpdateUserDto": {
+          "type": "object",
+          "properties": {}
+        },
+        "UpdateRoleDto": {
+          "type": "object",
+          "properties": {}
+        },
+        "CreateQuestDto": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "description": "Title of the quest",
+              "example": "Build User Profile Dashboard",
+              "minLength": 2,
+              "maxLength": 100
+            },
+            "description": {
+              "type": "string",
+              "description": "Detailed description of the quest",
+              "example": "Create avatar upload and user profile statistics",
+              "maxLength": 500
+            },
+            "type": {
+              "type": "string",
+              "description": "Type of quest",
+              "enum": [
+                "FEATURE",
+                "BUG",
+                "LEARNING",
+                "CODE_REVIEW",
+                "TESTING",
+                "REFACTOR",
+                "DOCUMENTATION",
+                "RESEARCH"
+              ],
+              "example": "FEATURE"
+            },
+            "difficulty": {
+              "type": "string",
+              "description": "Difficulty level of the quest",
+              "enum": [
+                "EASY",
+                "MEDIUM",
+                "HARD"
+              ],
+              "example": "MEDIUM"
+            },
+            "points": {
+              "type": "number",
+              "description": "Reward points earned upon completion",
+              "example": 50,
+              "minimum": 0
+            },
+            "teamId": {
+              "type": "number",
+              "description": "Optional Team ID to associate the quest with",
+              "example": 1,
+              "minimum": 1
+            },
+            "dueDate": {
+              "type": "string",
+              "description": "Due date in ISO 8601 string format",
+              "example": "2026-09-15T18:00:00.000Z"
+            }
+          },
+          "required": [
+            "title",
+            "type",
+            "difficulty",
+            "points"
+          ]
+        },
+        "UpdateQuestDto": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "description": "Title of the quest",
+              "example": "Build User Profile Dashboard",
+              "minLength": 2,
+              "maxLength": 100
+            },
+            "description": {
+              "type": "string",
+              "description": "Detailed description of the quest",
+              "example": "Create avatar upload and user profile statistics",
+              "maxLength": 500
+            },
+            "type": {
+              "type": "string",
+              "description": "Type of quest",
+              "enum": [
+                "FEATURE",
+                "BUG",
+                "LEARNING",
+                "CODE_REVIEW",
+                "TESTING",
+                "REFACTOR",
+                "DOCUMENTATION",
+                "RESEARCH"
+              ],
+              "example": "FEATURE"
+            },
+            "difficulty": {
+              "type": "string",
+              "description": "Difficulty level of the quest",
+              "enum": [
+                "EASY",
+                "MEDIUM",
+                "HARD"
+              ],
+              "example": "MEDIUM"
+            },
+            "points": {
+              "type": "number",
+              "description": "Reward points earned upon completion",
+              "example": 50,
+              "minimum": 0
+            },
+            "teamId": {
+              "type": "number",
+              "description": "Team ID to associate or reassign",
+              "example": 1,
+              "minimum": 1
+            },
+            "dueDate": {
+              "type": "string",
+              "description": "Due date in ISO 8601 string format",
+              "example": "2026-09-15T18:00:00.000Z"
+            },
+            "status": {
+              "type": "string",
+              "description": "New status for the quest",
+              "enum": [
+                "OPEN",
+                "IN_PROGRESS",
+                "DECLINE_REQUESTED",
+                "COMPLETED",
+                "CANCELLED"
+              ],
+              "example": "IN_PROGRESS"
+            }
+          }
+        },
+        "AssignQuestDto": {
+          "type": "object",
+          "properties": {
+            "userId": {
+              "type": "number",
+              "description": "User ID to assign the quest to (mutually exclusive with teamId; quest must have a team first)",
+              "example": 2,
+              "minimum": 1
+            },
+            "teamId": {
+              "type": "number",
+              "description": "Team ID to assign the quest to (mutually exclusive with userId)",
+              "example": 1,
+              "minimum": 1
+            }
+          }
+        },
+        "DeclineQuestDto": {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string",
+              "description": "Reason for requesting quest decline or admin reason for rejecting decline",
+              "example": "I am currently allocated to critical sprint bugfixes.",
+              "minLength": 5,
+              "maxLength": 500
+            }
+          },
+          "required": [
+            "reason"
+          ]
+        },
+        "CreateTeamDto": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "example": "Development Team",
+              "description": "Name of the team"
+            },
+            "description": {
+              "type": "string",
+              "example": "Team responsible for backend development",
+              "description": "Description of the team"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        "UpdateTeamDto": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "INACTIVE"
+              ],
+              "example": "ACTIVE",
+              "description": "Status of the team"
+            }
+          }
+        },
+        "AddMemberDto": {
+          "type": "object",
+          "properties": {
+            "userId": {
+              "type": "number",
+              "example": 2,
+              "description": "ID of the user to add to the team"
+            },
+            "role": {
+              "type": "string",
+              "enum": [
+                "LEADER",
+                "MEMBER"
+              ],
+              "example": "MEMBER",
+              "description": "Role of the team member"
+            }
+          },
+          "required": [
+            "userId"
+          ]
+        },
+        "UpdateMemberRoleDto": {
+          "type": "object",
+          "properties": {
+            "role": {
+              "type": "string",
+              "enum": [
+                "LEADER",
+                "MEMBER"
+              ],
+              "example": "MEMBER",
+              "description": "Role of the team member"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "INACTIVE"
+              ],
+              "example": "ACTIVE",
+              "description": "Status of the team member"
+            }
+          }
+        },
+        "CreateCommentDto": {
+          "type": "object",
+          "properties": {}
+        },
+        "UpdateCommentDto": {
+          "type": "object",
+          "properties": {}
+        }
+      }
+    }
+  },
+  "customOptions": {}
+};
+  url = options.swaggerUrl || url
+  let urls = options.swaggerUrls
+  let customOptions = options.customOptions
+  let spec1 = options.swaggerDoc
+  let swaggerOptions = {
+    spec: spec1,
+    url: url,
+    urls: urls,
+    dom_id: '#swagger-ui',
+    deepLinking: true,
+    presets: [
+      SwaggerUIBundle.presets.apis,
+      SwaggerUIStandalonePreset
+    ],
+    plugins: [
+      SwaggerUIBundle.plugins.DownloadUrl
+    ],
+    layout: "StandaloneLayout"
+  }
+  for (let attrname in customOptions) {
+    swaggerOptions[attrname] = customOptions[attrname];
+  }
+  let ui = SwaggerUIBundle(swaggerOptions)
+
+  if (customOptions.initOAuth) {
+    ui.initOAuth(customOptions.initOAuth)
+  }
+
+  if (customOptions.authAction) {
+    ui.authActions.authorize(customOptions.authAction)
+  }
+  
+  window.ui = ui
+}
